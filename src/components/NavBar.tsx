@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import AnimatedLogo from './AnimatedLogo';
 import Button from './Button';
 import { FileBarChart } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const NavBar: React.FC = () => {
   const location = useLocation();
@@ -39,7 +40,7 @@ const NavBar: React.FC = () => {
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        scrolled ? 'py-3 bg-white/80 dark:bg-black/80 backdrop-blur-lg shadow-md' : 'py-5'
+        scrolled ? 'py-3 bg-background/80 backdrop-blur-lg shadow-md' : 'py-5'
       )}
     >
       <div className="container flex items-center justify-between">
@@ -75,6 +76,8 @@ const NavBar: React.FC = () => {
         </nav>
         
         <div className="flex items-center gap-4">
+          <ThemeToggle />
+          
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               <div className="text-sm hidden md:block">
