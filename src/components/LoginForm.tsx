@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 
 interface LoginFormProps {
   className?: string;
+  onToggleForm?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ className }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ className, onToggleForm }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, isLoading, error } = useAuthStore();
@@ -119,19 +120,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ className }) => {
           Sign in
         </Button>
         
-        <div className="text-center text-sm text-muted-foreground mt-6">
-          Don't have an account?{' '}
-          <a 
-            href="#" 
-            className="text-primary hover:underline"
-            onClick={(e) => {
-              e.preventDefault();
-              toast.info('Registration functionality would go here');
-            }}
-          >
-            Sign up
-          </a>
-        </div>
+        {onToggleForm && (
+          <div className="text-center text-sm text-muted-foreground mt-6">
+            Don't have an account?{' '}
+            <button 
+              type="button"
+              onClick={onToggleForm}
+              className="text-primary hover:underline"
+            >
+              Sign up
+            </button>
+          </div>
+        )}
       </form>
       
       <div className="mt-8 pt-6 border-t text-center text-xs text-muted-foreground">

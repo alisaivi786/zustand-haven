@@ -1,8 +1,9 @@
 
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
+import { API_CONFIG } from '@/constants/api';
 
-const API_URL = 'https://api.example.com'; // Replace with your actual API URL
+const API_URL = API_CONFIG.BASE_URL;
 
 interface FetchOptions extends RequestInit {
   requireAuth?: boolean;
@@ -34,7 +35,7 @@ export async function fetchApi<T = any>(
   
   // Add auth token if available
   if (requireAuth && token) {
-    headers.set('Authorization', `Bearer ${token}`);
+    headers.set(API_CONFIG.TOKEN_HEADER, `Bearer ${token}`);
   }
   
   // Make the request
@@ -76,3 +77,23 @@ export async function fetchApi<T = any>(
     throw error;
   }
 }
+
+// Auth API calls
+export const authApi = {
+  login: async (email: string, password: string) => {
+    // In a real app, this would be a fetch call
+    // For mocking purposes, let's import the mock API
+    const { mockApi } = await import('@/services/mockApi');
+    return mockApi.login(email, password);
+  },
+  
+  signup: async (name: string, email: string, password: string) => {
+    const { mockApi } = await import('@/services/mockApi');
+    return mockApi.signup(name, email, password);
+  },
+  
+  refreshToken: async (refreshToken: string) => {
+    const { mockApi } = await import('@/services/mockApi');
+    return mockApi.refreshToken(refreshToken);
+  }
+};

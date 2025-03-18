@@ -1,6 +1,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { authApi } from '@/lib/api';
 
 interface User {
   id: string;
@@ -16,6 +17,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshAuth: () => Promise<void>;
 }
@@ -34,30 +36,42 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         
         try {
-          // This is a mock implementation - in a real app, this would be an API call
-          await new Promise(resolve => setTimeout(resolve, 800));
+          const response = await authApi.login(email, password);
           
-          // Mock successful login
-          if (email === 'user@example.com' && password === 'password') {
-            set({
-              user: {
-                id: '1',
-                name: 'Demo User',
-                email: 'user@example.com'
-              },
-              token: 'mock-jwt-token',
-              refreshToken: 'mock-refresh-token',
-              isAuthenticated: true,
-              isLoading: false,
-              error: null
-            });
-          } else {
-            throw new Error('Invalid credentials');
-          }
+          set({
+            user: response.user,
+            token: response.token,
+            refreshToken: response.refreshToken,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null
+          });
         } catch (error) {
           set({
             isLoading: false,
             error: error instanceof Error ? error.message : 'Login failed'
+          });
+        }
+      },
+      
+      signup: async (name, email, password) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          const response = await authApi.signup(name, email, password);
+          
+          set({
+            user: response.user,
+            token: response.token,
+            refreshToken: response.refreshToken,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null
+          });
+        } catch (error) {
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'Signup failed'
           });
         }
       },
@@ -83,11 +97,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         
         try {
-          // Mock token refresh - in a real app, this would be an API call
-          await new Promise(resolve => setTimeout(resolve, 500));
+          const response = await authApi.refreshToken(refreshToken);
           
           set({
-            token: 'new-mock-jwt-token',
+            token: response.token,
             isLoading: false
           });
         } catch (error) {
