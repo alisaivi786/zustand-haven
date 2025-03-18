@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import AnimatedLogo from './AnimatedLogo';
 import Button from './Button';
+import { FileBarChart } from 'lucide-react';
 
 const NavBar: React.FC = () => {
   const location = useLocation();
@@ -55,9 +56,17 @@ const NavBar: React.FC = () => {
             Home
           </NavLink>
           {isAuthenticated ? (
-            <NavLink to="/dashboard" current={location.pathname}>
-              Dashboard
-            </NavLink>
+            <>
+              <NavLink to="/dashboard" current={location.pathname}>
+                Dashboard
+              </NavLink>
+              <NavLink to="/reports" current={location.pathname}>
+                <span className="flex items-center gap-1.5">
+                  <FileBarChart className="h-4 w-4" />
+                  Reports
+                </span>
+              </NavLink>
+            </>
           ) : (
             <NavLink to="/login" current={location.pathname}>
               Login
