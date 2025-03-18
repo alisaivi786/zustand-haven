@@ -108,6 +108,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-
-// Add Zustand dependency
-<lov-add-dependency>zustand@4.4.7</lov-add-dependency>
