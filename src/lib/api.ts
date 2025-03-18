@@ -20,13 +20,29 @@ export async function fetchApi<T = any>(
   const { requireAuth = true, skipRefreshToken = false, ...fetchOptions } = options;
   
   // Get auth state from Zustand store
-  const { token, refreshAuth, isAuthenticated } = useAuthStore.getState();
+  const { token, tokenExpiry, refreshAuth, isAuthenticated, logout } = useAuthStore.getState();
   
   // Check if authentication is required but user is not authenticated
   if (requireAuth && !isAuthenticated) {
     const error = new Error('Authentication required');
     toast.error('Please log in to continue');
     throw error;
+  }
+  
+  // Check if token has expired and needs refresh
+  const isTokenExpired = tokenExpiry && Date.now() > tokenExpiry;
+  
+  if (requireAuth && isTokenExpired && !skipRefreshToken) {
+    try {
+      console.log('Token expired, refreshing...');
+      await refreshAuth();
+    } catch (error) {
+      // If refresh fails, log out the user
+      console.error('Failed to refresh token:', error);
+      logout();
+      toast.error('Your session has expired. Please log in again.');
+      throw new Error('Session expired');
+    }
   }
   
   // Set up request headers
@@ -95,5 +111,20 @@ export const authApi = {
   refreshToken: async (refreshToken: string) => {
     const { mockApi } = await import('@/services/mockApi');
     return mockApi.refreshToken(refreshToken);
+  }
+};
+
+// Reports API calls
+export const reportsApi = {
+  getReports: async () => {
+    const { token } = useAuthStore.getState();
+    const { mockApi } = await import('@/services/mockApi');
+    return mockApi.getReports(token || '');
+  },
+  
+  getReportDetails: async (reportId: string) => {
+    const { token } = useAuthStore.getState();
+    const { mockApi } = await import('@/services/mockApi');
+    return mockApi.getReportDetails(token || '', reportId);
   }
 };

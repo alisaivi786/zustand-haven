@@ -1,5 +1,6 @@
 
 import { API_CONFIG, MOCK_USERS } from '@/constants/api';
+import { MOCK_REPORTS } from '@/constants/reports';
 import { toast } from 'sonner';
 
 // Store registered users in localStorage
@@ -29,6 +30,16 @@ const generateToken = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
 
+// Generate token expiry time
+const generateTokenExpiry = () => {
+  return Date.now() + API_CONFIG.TOKEN_EXPIRY;
+};
+
+// Generate refresh token expiry time
+const generateRefreshTokenExpiry = () => {
+  return Date.now() + API_CONFIG.REFRESH_TOKEN_EXPIRY;
+};
+
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -52,7 +63,9 @@ export const mockApi = {
     return {
       user: userWithoutPassword,
       token,
-      refreshToken
+      refreshToken,
+      tokenExpiry: generateTokenExpiry(),
+      refreshTokenExpiry: generateRefreshTokenExpiry()
     };
   },
   
@@ -89,7 +102,9 @@ export const mockApi = {
     return {
       user: userWithoutPassword,
       token,
-      refreshToken
+      refreshToken,
+      tokenExpiry: generateTokenExpiry(),
+      refreshTokenExpiry: generateRefreshTokenExpiry()
     };
   },
   
@@ -103,7 +118,40 @@ export const mockApi = {
     }
     
     return {
-      token: generateToken()
+      token: generateToken(),
+      tokenExpiry: generateTokenExpiry()
     };
+  },
+  
+  getReports: async (token: string) => {
+    await delay(800); // Simulate network delay
+    
+    // In a real app, we would validate the token on the server
+    // For this mock, we'll just check if a token was provided
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    return {
+      reports: MOCK_REPORTS
+    };
+  },
+  
+  getReportDetails: async (token: string, reportId: string) => {
+    await delay(600); // Simulate network delay
+    
+    // Validate token
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+    
+    // Find report
+    const report = MOCK_REPORTS.find(r => r.id === reportId);
+    
+    if (!report) {
+      throw new Error('Report not found');
+    }
+    
+    return { report };
   }
 };

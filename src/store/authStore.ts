@@ -12,7 +12,9 @@ interface User {
 interface AuthState {
   user: User | null;
   token: string | null;
+  tokenExpiry: number | null;
   refreshToken: string | null;
+  refreshTokenExpiry: number | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -27,7 +29,9 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
+      tokenExpiry: null,
       refreshToken: null,
+      refreshTokenExpiry: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
@@ -41,7 +45,9 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: response.user,
             token: response.token,
+            tokenExpiry: response.tokenExpiry,
             refreshToken: response.refreshToken,
+            refreshTokenExpiry: response.refreshTokenExpiry,
             isAuthenticated: true,
             isLoading: false,
             error: null
@@ -63,7 +69,9 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: response.user,
             token: response.token,
+            tokenExpiry: response.tokenExpiry,
             refreshToken: response.refreshToken,
+            refreshTokenExpiry: response.refreshTokenExpiry,
             isAuthenticated: true,
             isLoading: false,
             error: null
@@ -80,18 +88,34 @@ export const useAuthStore = create<AuthState>()(
         set({
           user: null,
           token: null,
+          tokenExpiry: null,
           refreshToken: null,
+          refreshTokenExpiry: null,
           isAuthenticated: false,
           error: null
         });
       },
       
       refreshAuth: async () => {
-        const { refreshToken } = get();
+        const { refreshToken, refreshTokenExpiry } = get();
         
         if (!refreshToken) {
           set({ error: 'No refresh token available' });
-          return;
+          throw new Error('No refresh token available');
+        }
+        
+        // Check if refresh token has expired
+        if (refreshTokenExpiry && Date.now() > refreshTokenExpiry) {
+          set({
+            user: null,
+            token: null,
+            tokenExpiry: null,
+            refreshToken: null,
+            refreshTokenExpiry: null,
+            isAuthenticated: false,
+            error: 'Session expired. Please login again.'
+          });
+          throw new Error('Refresh token expired');
         }
         
         set({ isLoading: true });
@@ -101,17 +125,21 @@ export const useAuthStore = create<AuthState>()(
           
           set({
             token: response.token,
+            tokenExpiry: response.tokenExpiry,
             isLoading: false
           });
         } catch (error) {
           set({
             user: null,
             token: null,
+            tokenExpiry: null,
             refreshToken: null,
+            refreshTokenExpiry: null,
             isAuthenticated: false,
             isLoading: false,
             error: 'Session expired. Please login again.'
           });
+          throw error;
         }
       }
     }),

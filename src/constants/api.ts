@@ -5,11 +5,14 @@ export const API_CONFIG = {
     LOGIN: '/auth/login',
     REFRESH: '/auth/refresh',
     SIGNUP: '/auth/signup',
-    USERS: '/users'
+    USERS: '/users',
+    REPORTS: '/reports'
   },
   TOKEN_HEADER: 'Authorization',
   REFRESH_TOKEN_KEY: 'refresh_token',
-  REQUEST_TIMEOUT: 10000
+  REQUEST_TIMEOUT: 10000,
+  TOKEN_EXPIRY: 5 * 60 * 1000, // 5 minutes in milliseconds
+  REFRESH_TOKEN_EXPIRY: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
 };
 
 // Mock users database for local development
